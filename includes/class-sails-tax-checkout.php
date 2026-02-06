@@ -18,8 +18,16 @@ class Sails_Tax_Checkout {
     $customer = WC()->customer;
     if (!$customer) return;
 
+    // Prefer shipping address, but fall back to billing (Block Checkout often only provides billing).
     $toZip = $customer->get_shipping_postcode();
     $toState = $customer->get_shipping_state();
+
+    if (!$toZip) {
+      $toZip = $customer->get_billing_postcode();
+    }
+    if (!$toState) {
+      $toState = $customer->get_billing_state();
+    }
 
     if (!$toZip || !$toState) {
       return; // wait until address is present

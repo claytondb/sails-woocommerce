@@ -1,11 +1,18 @@
-<?php
+﻿<?php
 
 if (!defined('ABSPATH')) exit;
 
 class Sails_Tax_Checkout {
+  // Cache key prefix for transient storage
+  const CACHE_PREFIX = 'sails_tax_';
+  const CACHE_TTL = 300; // 5 minutes
+
   public function register() {
     add_action('woocommerce_cart_calculate_fees', [$this, 'apply_estimated_tax'], 20, 1);
     add_action('woocommerce_review_order_before_order_total', [$this, 'maybe_render_customer_note']);
+    // Store tax metadata on order completion
+    add_action('woocommerce_checkout_order_processed', [$this, 'store_order_meta'], 10, 3);
+    add_action('woocommerce_store_api_checkout_order_processed', [$this, 'store_order_meta_block'], 10, 1);
   }
 
   public function apply_estimated_tax($cart) {
@@ -37,6 +44,15 @@ class Sails_Tax_Checkout {
     $amount = floatval($cart->get_subtotal() + $cart->get_shipping_total());
     if ($amount <= 0) return;
 
+    // Check cache first to avoid redundant API calls
+    $cache_key = $this->get_cache_key($amount, $toZip, $toState);
+    $cached = get_transient($cache_key);
+    
+    if ($cached !== false) {
+      $this->apply_tax_result($cart, $cached);
+      return;
+    }
+
     $api = new Sails_Tax_API();
     $result = $api->calculate($amount, $toZip, $toState);
 
@@ -46,13 +62,23 @@ class Sails_Tax_Checkout {
       $this->store_last_notice([
         'confidence' => 'error',
         'message' => $result->get_error_message(),
+        'amount' => $amount,
+        'toZip' => $toZip,
+        'toState' => $toState,
       ]);
       return;
     }
 
+    // Cache successful result
+    set_transient($cache_key, $result, self::CACHE_TTL);
+    $this->apply_tax_result($cart, $result);
+  }
+
+  private function apply_tax_result($cart, $result) {
     $taxAmount = isset($result['taxAmount']) ? floatval($result['taxAmount']) : 0;
     $confidence = $result['confidence'] ?? 'state_only';
     $message = $result['message'] ?? '';
+    $rate = $result['rate'] ?? null;
 
     // Add tax as a fee line item.
     $cart->add_fee('Sales Tax', $taxAmount, false);
@@ -61,7 +87,15 @@ class Sails_Tax_Checkout {
     $this->store_last_notice([
       'confidence' => $confidence,
       'message' => $message,
+      'taxAmount' => $taxAmount,
+      'rate' => $rate,
     ]);
+  }
+
+  private function get_cache_key($amount, $zip, $state) {
+    // Round amount to avoid cache misses on tiny price changes
+    $rounded = round($amount, 2);
+    return self::CACHE_PREFIX . md5($rounded . '|' . $zip . '|' . $state);
   }
 
   private function store_last_notice($data) {
@@ -84,5 +118,52 @@ class Sails_Tax_Checkout {
     echo '<tr class="sails-tax-estimate-note"><td colspan="2">';
     echo '<small style="color:#6b7280;">' . esc_html($data['message']) . '</small>';
     echo '</td></tr>';
+  }
+
+  /**
+   * Store tax calculation metadata on order (classic checkout)
+   */
+  public function store_order_meta($order_id, $posted_data, $order) {
+    $this->save_tax_meta_to_order($order);
+  }
+
+  /**
+   * Store tax calculation metadata on order (block checkout)
+   */
+  public function store_order_meta_block($order) {
+    $this->save_tax_meta_to_order($order);
+  }
+
+  private function save_tax_meta_to_order($order) {
+    if (!$order) return;
+
+    $data = WC()->session ? WC()->session->get('sails_tax_last') : null;
+    if (!$data) return;
+
+    // Store confidence level for reporting/auditing
+    $order->update_meta_data('_sails_tax_confidence', $data['confidence'] ?? 'unknown');
+    
+    if (isset($data['taxAmount'])) {
+      $order->update_meta_data('_sails_tax_amount', $data['taxAmount']);
+    }
+    if (isset($data['rate'])) {
+      $order->update_meta_data('_sails_tax_rate', $data['rate']);
+    }
+    if (!empty($data['message'])) {
+      $order->update_meta_data('_sails_tax_message', $data['message']);
+    }
+
+    $order->save();
+
+    // Add order note for admin visibility
+    $confidence = $data['confidence'] ?? 'unknown';
+    if ($confidence !== 'exact_zip') {
+      $note = sprintf(
+        'Sails Tax: %s confidence. %s',
+        ucfirst(str_replace('_', ' ', $confidence)),
+        $data['message'] ?? ''
+      );
+      $order->add_order_note($note, false);
+    }
   }
 }

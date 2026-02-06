@@ -1,0 +1,19 @@
+﻿# WordPress
+wp-content/debug.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# System
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.bak
+
+# PHP
+vendor/
+composer.lock

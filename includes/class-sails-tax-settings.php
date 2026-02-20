@@ -23,6 +23,9 @@ class Sails_Tax_Settings {
   }
 
   public function register_settings() {
+    // Register AJAX handler for connection test
+    add_action('wp_ajax_sails_tax_test_connection', [$this, 'ajax_test_connection']);
+    
     register_setting(self::OPTION_GROUP, self::OPTION_NAME, [
       'type' => 'array',
       'sanitize_callback' => [$this, 'sanitize'],
@@ -140,6 +143,86 @@ class Sails_Tax_Settings {
     do_settings_sections('sails-tax');
     submit_button();
     echo '</form>';
+    
+    // Connection test section
+    echo '<hr style="margin: 30px 0;">';
+    echo '<h2>Test API Connection</h2>';
+    echo '<p>Verify your API key is working correctly.</p>';
+    echo '<button type="button" id="sails-test-connection" class="button button-secondary">Test Connection</button>';
+    echo '<span id="sails-test-result" style="margin-left: 15px;"></span>';
+    
+    // Inline script for AJAX test
+    ?>
+    <script type="text/javascript">
+    document.getElementById('sails-test-connection').addEventListener('click', function() {
+      var btn = this;
+      var result = document.getElementById('sails-test-result');
+      
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      result.innerHTML = '';
+      
+      fetch(ajaxurl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=sails_tax_test_connection&_wpnonce=<?php echo wp_create_nonce('sails_tax_test'); ?>'
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        btn.disabled = false;
+        btn.textContent = 'Test Connection';
+        if (data.success) {
+          result.innerHTML = '<span style="color: #46b450;">✓ ' + data.data.message + '</span>';
+        } else {
+          result.innerHTML = '<span style="color: #dc3232;">✗ ' + data.data.message + '</span>';
+        }
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = 'Test Connection';
+        result.innerHTML = '<span style="color: #dc3232;">✗ Request failed</span>';
+      });
+    });
+    </script>
+    <?php
     echo '</div>';
+  }
+
+  /**
+   * AJAX handler for API connection test
+   */
+  public function ajax_test_connection() {
+    check_ajax_referer('sails_tax_test', '_wpnonce');
+    
+    if (!current_user_can('manage_woocommerce')) {
+      wp_send_json_error(['message' => 'Unauthorized']);
+      return;
+    }
+
+    $opts = self::get();
+    $api_key = isset($opts['api_key']) ? $opts['api_key'] : '';
+    $base_url = isset($opts['api_base_url']) ? rtrim($opts['api_base_url'], '/') : 'https://sails.tax';
+
+    if (empty($api_key)) {
+      wp_send_json_error(['message' => 'No API key configured']);
+      return;
+    }
+
+    // Test with a sample calculation
+    $api = new Sails_Tax_API();
+    $result = $api->calculate(100.00, '90210', 'CA');
+
+    if (is_wp_error($result)) {
+      wp_send_json_error(['message' => $result->get_error_message()]);
+      return;
+    }
+
+    // Success - show what we got back
+    $confidence = isset($result['confidence']) ? $result['confidence'] : 'unknown';
+    $rate = isset($result['rate']) ? ($result['rate'] * 100) . '%' : 'N/A';
+    
+    wp_send_json_success([
+      'message' => "Connected! Test rate for 90210, CA: {$rate} ({$confidence} confidence)"
+    ]);
   }
 }

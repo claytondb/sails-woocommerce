@@ -3,7 +3,7 @@
  * Plugin Name: Sails Tax for WooCommerce
  * Plugin URI:  https://sails.tax/
  * Description: Sales tax estimation and tracking powered by Sails.tax. Calculates estimated sales tax at checkout and records calculation confidence.
- * Version:     0.2.0
+ * Version:     0.2.1
  * Author:      Sails
  * License:     GPLv2 or later
  * Text Domain: sails-tax
@@ -14,7 +14,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('SAILS_TAX_VERSION', '0.2.0');
+define('SAILS_TAX_VERSION', '0.2.1');
 define('SAILS_TAX_PLUGIN_FILE', __FILE__);
 define('SAILS_TAX_PLUGIN_DIR', plugin_dir_path(__FILE__));
 

@@ -9,6 +9,36 @@ class Sails_Tax_Settings {
   public function register() {
     add_action('admin_menu', [$this, 'add_menu']);
     add_action('admin_init', [$this, 'register_settings']);
+    add_action('admin_init', [$this, 'handle_cache_clear']);
+  }
+
+  /**
+   * Handle cache clear action
+   */
+  public function handle_cache_clear() {
+    if (!isset($_GET['sails_clear_cache']) || $_GET['sails_clear_cache'] !== '1') {
+      return;
+    }
+    
+    if (!wp_verify_nonce($_GET['_wpnonce'] ?? '', 'sails_clear_cache')) {
+      return;
+    }
+    
+    if (!current_user_can('manage_woocommerce')) {
+      return;
+    }
+    
+    global $wpdb;
+    $deleted = $wpdb->query(
+      "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_sails_tax_%' OR option_name LIKE '_transient_timeout_sails_tax_%'"
+    );
+    
+    // Store success message for display
+    set_transient('sails_cache_cleared', true, 30);
+    
+    // Redirect back without the action params
+    wp_redirect(admin_url('admin.php?page=sails-tax'));
+    exit;
   }
 
   public function add_menu() {
@@ -57,6 +87,8 @@ class Sails_Tax_Settings {
       'sails-tax',
       'sails_tax_main'
     );
+
+    $this->add_field_yesno('debug_logging', 'Enable Debug Logging', 'Log API calls to WooCommerce logs for troubleshooting.');
   }
 
   public function sanitize($input) {
@@ -65,6 +97,7 @@ class Sails_Tax_Settings {
     $out['api_base_url'] = isset($input['api_base_url']) ? esc_url_raw(trim($input['api_base_url'])) : 'https://sails.tax';
     $out['api_key'] = isset($input['api_key']) ? sanitize_text_field(trim($input['api_key'])) : '';
     $out['customer_disclaimer'] = (isset($input['customer_disclaimer']) && $input['customer_disclaimer'] === 'yes') ? 'yes' : 'no';
+    $out['debug_logging'] = (isset($input['debug_logging']) && $input['debug_logging'] === 'yes') ? 'yes' : 'no';
     return $out;
   }
 
@@ -138,6 +171,13 @@ class Sails_Tax_Settings {
   public function render_page() {
     echo '<div class="wrap">';
     echo '<h1>Sails Tax</h1>';
+    
+    // Show cache cleared message
+    if (get_transient('sails_cache_cleared')) {
+      delete_transient('sails_cache_cleared');
+      echo '<div class="notice notice-success is-dismissible"><p>Tax rate cache cleared successfully.</p></div>';
+    }
+    
     echo '<form method="post" action="options.php">';
     settings_fields(self::OPTION_GROUP);
     do_settings_sections('sails-tax');
@@ -150,6 +190,13 @@ class Sails_Tax_Settings {
     echo '<p>Verify your API key is working correctly.</p>';
     echo '<button type="button" id="sails-test-connection" class="button button-secondary">Test Connection</button>';
     echo '<span id="sails-test-result" style="margin-left: 15px;"></span>';
+    
+    // Cache management section
+    echo '<hr style="margin: 30px 0;">';
+    echo '<h2>Cache Management</h2>';
+    echo '<p>Tax rates are cached for 5 minutes to improve checkout speed. Clear the cache if you need fresh rates immediately.</p>';
+    $clear_url = wp_nonce_url(admin_url('admin.php?page=sails-tax&sails_clear_cache=1'), 'sails_clear_cache');
+    echo '<a href="' . esc_url($clear_url) . '" class="button button-secondary">Clear Tax Cache</a>';
     
     // Inline script for AJAX test
     ?>

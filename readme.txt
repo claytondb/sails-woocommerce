@@ -1,35 +1,111 @@
 === Sails Tax for WooCommerce ===
-Contributors: sails
-Tags: sales tax, woocommerce, tax, compliance
+Contributors: sailstax
+Tags: sales tax, woocommerce, tax, tax calculation, ecommerce
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Sales tax estimation and tracking powered by Sails.tax.
+Automatic sales tax calculation for WooCommerce stores. Real-time rates powered by Sails.
 
 == Description ==
 
-Sails Tax for WooCommerce calculates estimated sales tax at checkout using the Sails API.
+Sails Tax for WooCommerce automatically calculates sales tax at checkout using real-time data from the [Sails](https://sails.tax) API.
 
-Features:
-- Checkout sales tax estimation (always returns an estimate)
-- Merchant-visible confidence notes (exact ZIP vs nearby ZIP vs state-only)
-- Optional customer-visible estimate note (off by default)
+**Perfect for small online sellers** who want accurate tax calculations without the complexity of enterprise tax software.
+
+= Features =
+
+* **Real-time tax calculation** at checkout based on customer address
+* **ZIP-level accuracy** with fallback to state rates when needed
+* **Confidence indicators** so you know how precise each calculation is
+* **Caching** to minimize API calls and keep your checkout fast
+* **Debug logging** for easy troubleshooting
+* **Order meta box** showing tax details on each order
+* **Cache management** from the admin settings
+
+= How It Works =
+
+1. Customer enters their shipping address at checkout
+2. Sails calculates the exact tax rate for that location
+3. Tax is applied to the order automatically
+4. You see confidence details in the order admin
+
+= Requirements =
+
+* WooCommerce 7.0 or higher
+* A free Sails account ([sign up here](https://sails.tax/signup))
+* Your Sails API key
+
+= Free Plan Included =
+
+The free Sails plan includes 100 tax calculations per month. Perfect for small stores just getting started.
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/`.
-2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Go to WooCommerce → Settings → Sails Tax.
-4. Paste your Sails API key.
+1. Upload the `sails-tax-woocommerce` folder to `/wp-content/plugins/`
+2. Activate the plugin through the Plugins menu in WordPress
+3. Go to WooCommerce > Settings > Sails Tax
+4. Enter your Sails API key
+5. Configure your store address and preferences
+6. Save changes
+
+That's it! Tax will now be calculated automatically at checkout.
 
 == Frequently Asked Questions ==
 
-= Why might the tax be an estimate? =
-If Sails cannot determine an exact ZIP-level rate, it may use a nearby ZIP rate or a state-only rate as an estimate.
+= Do I need a Sails account? =
 
-= Can customers see the estimate note? =
-Yes — there is a setting to show a short note at checkout. It is off by default.
+Yes. You'll need a free Sails account to get your API key. Sign up at [sails.tax/signup](https://sails.tax/signup).
+
+= Is it free? =
+
+The plugin is free. The Sails free plan includes 100 tax calculations per month, which is enough for most small stores.
+
+= Why does it say "estimate" sometimes? =
+
+If Sails cannot determine an exact rate for a specific ZIP code, it uses a nearby ZIP or state-level rate as a safe estimate. The confidence level is shown in your order details.
+
+= Does it work with WooCommerce Subscriptions? =
+
+Yes. Tax is calculated for each renewal based on the customer's current address.
+
+= What happens if the API is down? =
+
+The plugin can fall back to WooCommerce's built-in tax tables if configured. We recommend keeping basic rates set up as a safety net.
+
+= Which payment gateways does it support? =
+
+All of them. Tax is calculated during checkout before payment processing, so it works with Stripe, PayPal, Square, and any WooCommerce-compatible gateway.
+
+== Screenshots ==
+
+1. Settings page where you enter your API key and configure options
+2. Tax calculation shown at checkout
+3. Order details showing tax confidence and breakdown
+
+== Changelog ==
+
+= 0.3.0 =
+* Added order admin meta box showing tax details
+* Added debug logging option
+* Added cache clear button in settings
+* Added User-Agent header for API tracking
+* Improved error handling
+
+= 0.2.0 =
+* Added address caching to reduce API calls
+* Added confidence level display
+* Improved checkout integration
+
+= 0.1.0 =
+* Initial release
+* Basic checkout tax calculation
+* Settings page for API key
+
+== Upgrade Notice ==
+
+= 0.3.0 =
+New features: order meta box, debug logging, and cache management. Recommended update for all users.

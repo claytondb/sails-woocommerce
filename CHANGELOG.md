@@ -2,6 +2,16 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [0.3.1] - 2026-03-06
+
+### Added
+- **Full Internationalization (i18n)** - All user-facing strings now use WordPress translation functions
+- **Languages Directory** - Ready for translation files (.po/.mo)
+- **Text Domain Loading** - Proper textdomain initialization on plugin load
+
+### Improved
+- WordPress Plugin Guidelines compliance for WordPress.org submission
+
 ## [0.3.0] - 2026-02-20
 
 ### Added

@@ -14,7 +14,7 @@ class Sails_Tax_API {
 
     if (!$key) {
       $this->log('API key not configured', 'error', $debug);
-      return new WP_Error('sails_tax_no_key', 'Sails API key is not configured.');
+      return new WP_Error('sails_tax_no_key', __('Sails API key is not configured.', 'sails-tax'));
     }
 
     $url = $base . '/api/v1/tax/calculate';

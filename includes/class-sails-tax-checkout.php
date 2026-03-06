@@ -58,7 +58,7 @@ class Sails_Tax_Checkout {
 
     if (is_wp_error($result)) {
       // Merchant-visible note in checkout (admin only) and order note later.
-      $cart->add_fee('Sales Tax (Sails)', 0, false);
+      $cart->add_fee(__('Sales Tax (Sails)', 'sails-tax'), 0, false);
       $this->store_last_notice([
         'confidence' => 'error',
         'message' => $result->get_error_message(),
@@ -81,7 +81,7 @@ class Sails_Tax_Checkout {
     $rate = $result['rate'] ?? null;
 
     // Add tax as a fee line item.
-    $cart->add_fee('Sales Tax', $taxAmount, false);
+    $cart->add_fee(__('Sales Tax', 'sails-tax'), $taxAmount, false);
 
     // Store disclaimer for rendering and for order meta.
     $this->store_last_notice([
@@ -159,7 +159,8 @@ class Sails_Tax_Checkout {
     $confidence = $data['confidence'] ?? 'unknown';
     if ($confidence !== 'exact_zip') {
       $note = sprintf(
-        'Sails Tax: %s confidence. %s',
+        /* translators: 1: confidence level 2: additional message */
+        __('Sails Tax: %1$s confidence. %2$s', 'sails-tax'),
         ucfirst(str_replace('_', ' ', $confidence)),
         $data['message'] ?? ''
       );

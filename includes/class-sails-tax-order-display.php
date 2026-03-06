@@ -23,7 +23,7 @@ class Sails_Tax_Order_Display {
     
     add_meta_box(
       'sails_tax_details',
-      'Sails Tax Details',
+      __('Sails Tax Details', 'sails-tax'),
       [$this, 'render_meta_box'],
       $screen,
       'side',
@@ -43,7 +43,7 @@ class Sails_Tax_Order_Display {
     }
     
     if (!$order) {
-      echo '<p>Order not found.</p>';
+      echo '<p>' . esc_html__('Order not found.', 'sails-tax') . '</p>';
       return;
     }
 
@@ -53,8 +53,8 @@ class Sails_Tax_Order_Display {
     $message = $order->get_meta('_sails_tax_message');
 
     if (!$confidence && !$rate && !$amount) {
-      echo '<p style="color: #666;">No Sails tax data recorded for this order.</p>';
-      echo '<p style="font-size: 11px; color: #999;">Tax data is only recorded for orders placed after Sails Tax was installed.</p>';
+      echo '<p style="color: #666;">' . esc_html__('No Sails tax data recorded for this order.', 'sails-tax') . '</p>';
+      echo '<p style="font-size: 11px; color: #999;">' . esc_html__('Tax data is only recorded for orders placed after Sails Tax was installed.', 'sails-tax') . '</p>';
       return;
     }
 
@@ -63,16 +63,16 @@ class Sails_Tax_Order_Display {
     if ($confidence) {
       $confidence_label = ucwords(str_replace('_', ' ', $confidence));
       $confidence_color = $this->get_confidence_color($confidence);
-      echo '<tr><th style="width: 40%;">Confidence</th><td><span style="color: ' . esc_attr($confidence_color) . ';">● ' . esc_html($confidence_label) . '</span></td></tr>';
+      echo '<tr><th style="width: 40%;">' . esc_html__('Confidence', 'sails-tax') . '</th><td><span style="color: ' . esc_attr($confidence_color) . ';">● ' . esc_html($confidence_label) . '</span></td></tr>';
     }
     
     if ($rate) {
       $rate_percent = floatval($rate) * 100;
-      echo '<tr><th>Tax Rate</th><td>' . esc_html(number_format($rate_percent, 2)) . '%</td></tr>';
+      echo '<tr><th>' . esc_html__('Tax Rate', 'sails-tax') . '</th><td>' . esc_html(number_format($rate_percent, 2)) . '%</td></tr>';
     }
     
     if ($amount) {
-      echo '<tr><th>Tax Amount</th><td>' . wc_price($amount) . '</td></tr>';
+      echo '<tr><th>' . esc_html__('Tax Amount', 'sails-tax') . '</th><td>' . wc_price($amount) . '</td></tr>';
     }
     
     echo '</table>';

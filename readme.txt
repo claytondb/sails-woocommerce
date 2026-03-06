@@ -4,7 +4,7 @@ Tags: sales tax, woocommerce, tax, tax calculation, ecommerce
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,11 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 3. Order details showing tax confidence and breakdown
 
 == Changelog ==
+
+= 0.3.1 =
+* Added full internationalization (i18n) support for translations
+* Created languages directory for translation files
+* Improved WordPress coding standards compliance
 
 = 0.3.0 =
 * Added order admin meta box showing tax details

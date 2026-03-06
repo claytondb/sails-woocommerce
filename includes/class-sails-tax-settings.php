@@ -69,26 +69,26 @@ class Sails_Tax_Settings {
 
     add_settings_section(
       'sails_tax_main',
-      'Sails Tax Settings',
+      __('Sails Tax Settings', 'sails-tax'),
       function () {
-        echo '<p>Configure Sails Tax estimation for checkout.</p>';
+        echo '<p>' . esc_html__('Configure Sails Tax estimation for checkout.', 'sails-tax') . '</p>';
       },
       'sails-tax'
     );
 
-    $this->add_field_yesno('enabled', 'Enable Sails Tax', 'Turn on tax estimation at checkout.');
-    $this->add_field_text('api_base_url', 'Sails API Base URL', 'Example: https://sails.tax');
-    $this->add_field_password('api_key', 'Sails API Key', 'Create an API key in Sails and paste it here.');
+    $this->add_field_yesno('enabled', __('Enable Sails Tax', 'sails-tax'), __('Turn on tax estimation at checkout.', 'sails-tax'));
+    $this->add_field_text('api_base_url', __('Sails API Base URL', 'sails-tax'), __('Example: https://sails.tax', 'sails-tax'));
+    $this->add_field_password('api_key', __('Sails API Key', 'sails-tax'), __('Create an API key in Sails and paste it here.', 'sails-tax'));
 
     add_settings_field(
       'customer_disclaimer',
-      'Show estimate note to customer',
+      __('Show estimate note to customer', 'sails-tax'),
       [$this, 'field_customer_disclaimer'],
       'sails-tax',
       'sails_tax_main'
     );
 
-    $this->add_field_yesno('debug_logging', 'Enable Debug Logging', 'Log API calls to WooCommerce logs for troubleshooting.');
+    $this->add_field_yesno('debug_logging', __('Enable Debug Logging', 'sails-tax'), __('Log API calls to WooCommerce logs for troubleshooting.', 'sails-tax'));
   }
 
   public function sanitize($input) {
@@ -158,24 +158,23 @@ class Sails_Tax_Settings {
     $val = isset($opts['customer_disclaimer']) ? $opts['customer_disclaimer'] : 'no';
 
     echo "<select name='" . self::OPTION_NAME . "[customer_disclaimer]'>";
-    echo "<option value='no'" . selected($val, 'no', false) . ">No (recommended)</option>";
-    echo "<option value='yes'" . selected($val, 'yes', false) . ">Yes</option>";
+    echo "<option value='no'" . selected($val, 'no', false) . ">" . esc_html__('No (recommended)', 'sails-tax') . "</option>";
+    echo "<option value='yes'" . selected($val, 'yes', false) . ">" . esc_html__('Yes', 'sails-tax') . "</option>";
     echo "</select>";
 
     echo "<p class='description'>";
-    echo "If enabled, customers will see a short note at checkout whenever Sails can only provide an estimated rate (for example, state-only). ";
-    echo "This may reduce conversion but improves transparency.";
+    echo esc_html__('If enabled, customers will see a short note at checkout whenever Sails can only provide an estimated rate (for example, state-only). This may reduce conversion but improves transparency.', 'sails-tax');
     echo "</p>";
   }
 
   public function render_page() {
     echo '<div class="wrap">';
-    echo '<h1>Sails Tax</h1>';
+    echo '<h1>' . esc_html__('Sails Tax', 'sails-tax') . '</h1>';
     
     // Show cache cleared message
     if (get_transient('sails_cache_cleared')) {
       delete_transient('sails_cache_cleared');
-      echo '<div class="notice notice-success is-dismissible"><p>Tax rate cache cleared successfully.</p></div>';
+      echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Tax rate cache cleared successfully.', 'sails-tax') . '</p></div>';
     }
     
     echo '<form method="post" action="options.php">';
@@ -186,17 +185,17 @@ class Sails_Tax_Settings {
     
     // Connection test section
     echo '<hr style="margin: 30px 0;">';
-    echo '<h2>Test API Connection</h2>';
-    echo '<p>Verify your API key is working correctly.</p>';
-    echo '<button type="button" id="sails-test-connection" class="button button-secondary">Test Connection</button>';
+    echo '<h2>' . esc_html__('Test API Connection', 'sails-tax') . '</h2>';
+    echo '<p>' . esc_html__('Verify your API key is working correctly.', 'sails-tax') . '</p>';
+    echo '<button type="button" id="sails-test-connection" class="button button-secondary">' . esc_html__('Test Connection', 'sails-tax') . '</button>';
     echo '<span id="sails-test-result" style="margin-left: 15px;"></span>';
     
     // Cache management section
     echo '<hr style="margin: 30px 0;">';
-    echo '<h2>Cache Management</h2>';
-    echo '<p>Tax rates are cached for 5 minutes to improve checkout speed. Clear the cache if you need fresh rates immediately.</p>';
+    echo '<h2>' . esc_html__('Cache Management', 'sails-tax') . '</h2>';
+    echo '<p>' . esc_html__('Tax rates are cached for 5 minutes to improve checkout speed. Clear the cache if you need fresh rates immediately.', 'sails-tax') . '</p>';
     $clear_url = wp_nonce_url(admin_url('admin.php?page=sails-tax&sails_clear_cache=1'), 'sails_clear_cache');
-    echo '<a href="' . esc_url($clear_url) . '" class="button button-secondary">Clear Tax Cache</a>';
+    echo '<a href="' . esc_url($clear_url) . '" class="button button-secondary">' . esc_html__('Clear Tax Cache', 'sails-tax') . '</a>';
     
     // Inline script for AJAX test
     ?>
@@ -242,7 +241,7 @@ class Sails_Tax_Settings {
     check_ajax_referer('sails_tax_test', '_wpnonce');
     
     if (!current_user_can('manage_woocommerce')) {
-      wp_send_json_error(['message' => 'Unauthorized']);
+      wp_send_json_error(['message' => __('Unauthorized', 'sails-tax')]);
       return;
     }
 
@@ -251,7 +250,7 @@ class Sails_Tax_Settings {
     $base_url = isset($opts['api_base_url']) ? rtrim($opts['api_base_url'], '/') : 'https://sails.tax';
 
     if (empty($api_key)) {
-      wp_send_json_error(['message' => 'No API key configured']);
+      wp_send_json_error(['message' => __('No API key configured', 'sails-tax')]);
       return;
     }
 
@@ -269,7 +268,8 @@ class Sails_Tax_Settings {
     $rate = isset($result['rate']) ? ($result['rate'] * 100) . '%' : 'N/A';
     
     wp_send_json_success([
-      'message' => "Connected! Test rate for 90210, CA: {$rate} ({$confidence} confidence)"
+      /* translators: 1: tax rate percentage 2: confidence level */
+      'message' => sprintf(__('Connected! Test rate for 90210, CA: %1$s (%2$s confidence)', 'sails-tax'), $rate, $confidence)
     ]);
   }
 }

@@ -4,7 +4,7 @@ Tags: sales tax, woocommerce, tax, tax calculation, ecommerce
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 0.3.1
+Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,10 +21,12 @@ Sails Tax for WooCommerce automatically calculates sales tax at checkout using r
 * **Real-time tax calculation** at checkout based on customer address
 * **ZIP-level accuracy** with fallback to state rates when needed
 * **Confidence indicators** so you know how precise each calculation is
+* **Tax reports dashboard** to track total tax collected, confidence breakdowns, and trends
 * **Caching** to minimize API calls and keep your checkout fast
 * **Debug logging** for easy troubleshooting
 * **Order meta box** showing tax details on each order
 * **Cache management** from the admin settings
+* **HPOS compatible** - works with High-Performance Order Storage
 
 = How It Works =
 
@@ -88,6 +90,13 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 
 == Changelog ==
 
+= 0.4.0 =
+* Added Tax Reports dashboard (WooCommerce > Tax Reports)
+* View total tax collected with date range filtering
+* Confidence level breakdown with order counts and totals
+* Recent orders with Sails tax data at a glance
+* Full HPOS (High-Performance Order Storage) support
+
 = 0.3.1 =
 * Added full internationalization (i18n) support for translations
 * Created languages directory for translation files
@@ -111,6 +120,9 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 * Settings page for API key
 
 == Upgrade Notice ==
+
+= 0.4.0 =
+New Tax Reports dashboard to track your tax collections and confidence levels. View totals, breakdowns, and recent orders. HPOS compatible.
 
 = 0.3.0 =
 New features: order meta box, debug logging, and cache management. Recommended update for all users.

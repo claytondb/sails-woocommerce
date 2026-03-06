@@ -2,6 +2,23 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [0.4.0] - 2026-03-06
+
+### Added
+- **Tax Reports Page** - New admin dashboard showing:
+  - Total tax collected in date range
+  - Order count with tax calculations
+  - Average tax rate across orders
+  - Exact ZIP match percentage
+  - Confidence level breakdown with totals
+  - Recent orders with Sails tax data
+  - Date range filtering
+- **TODO.md** - Task list for tracking planned features
+
+### Improved
+- Full HPOS (High-Performance Order Storage) support in reports
+- Legacy postmeta fallback for older WooCommerce versions
+
 ## [0.3.1] - 2026-03-06
 
 ### Added

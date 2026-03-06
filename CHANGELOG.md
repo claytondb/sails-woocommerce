@@ -2,6 +2,24 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [0.5.0] - 2026-03-06
+
+### Added
+- **Tax Exemption Support** - Mark customers as tax exempt with full certificate management:
+  - Enable/disable exemptions from settings
+  - User profile fields for exemption status, certificate number, reason, and expiry
+  - State-specific exemptions (exempt in certain states only)
+  - Exemption reasons: Resale/Wholesale, Government, Non-Profit, Tribal, Agriculture, Manufacturing, Diplomatic, Other
+  - Certificate expiry date tracking
+  - "Tax Exempt" column in WP Users list
+  - Exemption info displayed on order admin page
+  - Order notes and metadata for exempt orders
+  - Automatic API skip for exempt customers (saves API calls)
+
+### Improved
+- Checkout now checks exemption status before calling Sails API
+- Orders store exemption details for audit trail
+
 ## [0.4.0] - 2026-03-06
 
 ### Added

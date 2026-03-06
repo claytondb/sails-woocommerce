@@ -88,6 +88,7 @@ class Sails_Tax_Settings {
       'sails_tax_main'
     );
 
+    $this->add_field_yesno('exemptions_enabled', __('Enable Tax Exemptions', 'sails-tax'), __('Allow marking customers as tax exempt with exemption certificates.', 'sails-tax'));
     $this->add_field_yesno('debug_logging', __('Enable Debug Logging', 'sails-tax'), __('Log API calls to WooCommerce logs for troubleshooting.', 'sails-tax'));
   }
 
@@ -97,6 +98,7 @@ class Sails_Tax_Settings {
     $out['api_base_url'] = isset($input['api_base_url']) ? esc_url_raw(trim($input['api_base_url'])) : 'https://sails.tax';
     $out['api_key'] = isset($input['api_key']) ? sanitize_text_field(trim($input['api_key'])) : '';
     $out['customer_disclaimer'] = (isset($input['customer_disclaimer']) && $input['customer_disclaimer'] === 'yes') ? 'yes' : 'no';
+    $out['exemptions_enabled'] = (isset($input['exemptions_enabled']) && $input['exemptions_enabled'] === 'yes') ? 'yes' : 'no';
     $out['debug_logging'] = (isset($input['debug_logging']) && $input['debug_logging'] === 'yes') ? 'yes' : 'no';
     return $out;
   }

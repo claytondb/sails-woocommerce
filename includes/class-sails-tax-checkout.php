@@ -40,6 +40,24 @@ class Sails_Tax_Checkout {
       return; // wait until address is present
     }
 
+    // Check if customer is tax exempt
+    $user_id = get_current_user_id();
+    if ($user_id && class_exists('Sails_Tax_Exemptions') && Sails_Tax_Exemptions::is_customer_exempt($user_id, $toState)) {
+      // Customer is exempt - apply $0 tax
+      $cart->add_fee(__('Sales Tax', 'sails-tax'), 0, false);
+      $exemption_details = Sails_Tax_Exemptions::get_exemption_details($user_id);
+      $this->store_last_notice([
+        'confidence' => 'exempt',
+        'message' => __('Tax exempt customer', 'sails-tax'),
+        'taxAmount' => 0,
+        'rate' => 0,
+        'exempt' => true,
+        'exempt_reason' => $exemption_details['reason'] ?? '',
+        'exempt_cert' => $exemption_details['cert_number'] ?? '',
+      ]);
+      return;
+    }
+
     // Calculate taxable amount (subtotal + shipping). MVP: treat everything taxable.
     $amount = floatval($cart->get_subtotal() + $cart->get_shipping_total());
     if ($amount <= 0) return;
@@ -153,11 +171,31 @@ class Sails_Tax_Checkout {
       $order->update_meta_data('_sails_tax_message', $data['message']);
     }
 
+    // Store exemption details if applicable
+    if (!empty($data['exempt'])) {
+      $order->update_meta_data('_sails_tax_exempt_applied', 'yes');
+      if (!empty($data['exempt_reason'])) {
+        $order->update_meta_data('_sails_tax_exempt_reason', $data['exempt_reason']);
+      }
+      if (!empty($data['exempt_cert'])) {
+        $order->update_meta_data('_sails_tax_exempt_cert', $data['exempt_cert']);
+      }
+    }
+
     $order->save();
 
     // Add order note for admin visibility
     $confidence = $data['confidence'] ?? 'unknown';
-    if ($confidence !== 'exact_zip') {
+    if ($confidence === 'exempt') {
+      $note = __('Sails Tax: Customer is tax exempt.', 'sails-tax');
+      if (!empty($data['exempt_reason'])) {
+        $note .= ' ' . sprintf(__('Reason: %s.', 'sails-tax'), ucfirst($data['exempt_reason']));
+      }
+      if (!empty($data['exempt_cert'])) {
+        $note .= ' ' . sprintf(__('Certificate: %s', 'sails-tax'), $data['exempt_cert']);
+      }
+      $order->add_order_note($note, false);
+    } elseif ($confidence !== 'exact_zip') {
       $note = sprintf(
         /* translators: 1: confidence level 2: additional message */
         __('Sails Tax: %1$s confidence. %2$s', 'sails-tax'),

@@ -1,6 +1,6 @@
 # Sails Tax for WooCommerce - Task List
 
-Last updated: 2026-03-06
+Last updated: 2026-03-06 (4:00 AM)
 
 ## ✅ Completed
 
@@ -21,13 +21,15 @@ Last updated: 2026-03-06
 
 ## 🔥 Priority Features
 
-### 1. Tax Exemption Support
+### 1. Tax Exemption Support ✅ DONE (2026-03-06)
 **Priority:** HIGH
 
-- [ ] Tax-exempt customer flag
-- [ ] Exemption certificate storage
-- [ ] Skip API call for exempt customers
-- [ ] Admin UI for managing exemptions
+- [x] Tax-exempt customer flag
+- [x] Exemption certificate storage (number, reason, expiry, states)
+- [x] Skip API call for exempt customers
+- [x] Admin UI for managing exemptions (user profile fields)
+- [x] User list column showing exempt status
+- [x] Order-level exemption tracking
 
 ### 2. Product Category Exemptions
 **Priority:** MEDIUM

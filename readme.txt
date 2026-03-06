@@ -4,7 +4,7 @@ Tags: sales tax, woocommerce, tax, tax calculation, ecommerce
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,7 @@ Sails Tax for WooCommerce automatically calculates sales tax at checkout using r
 * **ZIP-level accuracy** with fallback to state rates when needed
 * **Confidence indicators** so you know how precise each calculation is
 * **Tax reports dashboard** to track total tax collected, confidence breakdowns, and trends
+* **Tax exemptions** for wholesale, government, non-profit, and other exempt customers
 * **Caching** to minimize API calls and keep your checkout fast
 * **Debug logging** for easy troubleshooting
 * **Order meta box** showing tax details on each order
@@ -74,6 +75,16 @@ If Sails cannot determine an exact rate for a specific ZIP code, it uses a nearb
 
 Yes. Tax is calculated for each renewal based on the customer's current address.
 
+= How do I set up tax exemptions? =
+
+1. Enable "Tax Exemptions" in WooCommerce > Sails Tax settings
+2. Go to Users > edit any customer's profile
+3. Scroll to "Tax Exemption (Sails Tax)" and check "Tax Exempt"
+4. Enter their certificate number, reason, and optional expiry date
+5. Choose which states the exemption applies to (or select "All States")
+
+The customer will automatically get $0 tax at checkout.
+
 = What happens if the API is down? =
 
 The plugin can fall back to WooCommerce's built-in tax tables if configured. We recommend keeping basic rates set up as a safety net.
@@ -89,6 +100,16 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 3. Order details showing tax confidence and breakdown
 
 == Changelog ==
+
+= 0.5.0 =
+* NEW: Tax Exemption Support - mark customers as tax exempt with full certificate management
+* Exemption reasons: Resale/Wholesale, Government, Non-Profit, Tribal, Agriculture, Manufacturing, Diplomatic
+* State-specific exemptions (exempt in certain states only)
+* Certificate expiry date tracking
+* User profile fields for managing exemptions
+* "Tax Exempt" column in WordPress Users list
+* Exempt customers skip API calls automatically
+* Exemption details shown on order admin page
 
 = 0.4.0 =
 * Added Tax Reports dashboard (WooCommerce > Tax Reports)
@@ -120,6 +141,9 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 * Settings page for API key
 
 == Upgrade Notice ==
+
+= 0.5.0 =
+NEW: Tax Exemption Support! Mark wholesale, government, and non-profit customers as tax exempt. Manage certificates with expiry dates and state-specific rules.
 
 = 0.4.0 =
 New Tax Reports dashboard to track your tax collections and confidence levels. View totals, breakdowns, and recent orders. HPOS compatible.

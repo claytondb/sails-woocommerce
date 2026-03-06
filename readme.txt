@@ -4,7 +4,7 @@ Tags: sales tax, woocommerce, tax, tax calculation, ecommerce
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 0.5.0
+Stable tag: 0.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,7 @@ Sails Tax for WooCommerce automatically calculates sales tax at checkout using r
 * **Confidence indicators** so you know how precise each calculation is
 * **Tax reports dashboard** to track total tax collected, confidence breakdowns, and trends
 * **Tax exemptions** for wholesale, government, non-profit, and other exempt customers
+* **Product category exemptions** for groceries, clothing, medicine, and other non-taxable products
 * **Caching** to minimize API calls and keep your checkout fast
 * **Debug logging** for easy troubleshooting
 * **Order meta box** showing tax details on each order
@@ -101,6 +102,15 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 
 == Changelog ==
 
+= 0.6.0 =
+* NEW: Product Category Exemptions - mark entire categories as tax-exempt
+* Preset exemption types: Groceries, Clothing, Medicine, Digital Products
+* State-specific exemptions (e.g., groceries only exempt in certain states)
+* Mixed cart support - correctly calculates partial exemptions
+* Multi-select category and state pickers with Select2
+* Order notes and metadata for exempt products
+* New admin page: WooCommerce > Product Exemptions
+
 = 0.5.0 =
 * NEW: Tax Exemption Support - mark customers as tax exempt with full certificate management
 * Exemption reasons: Resale/Wholesale, Government, Non-Profit, Tribal, Agriculture, Manufacturing, Diplomatic
@@ -141,6 +151,9 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 * Settings page for API key
 
 == Upgrade Notice ==
+
+= 0.6.0 =
+NEW: Product Category Exemptions! Mark groceries, clothing, medicine, and other categories as tax-exempt. Supports state-specific rules (e.g., groceries exempt in some states only).
 
 = 0.5.0 =
 NEW: Tax Exemption Support! Mark wholesale, government, and non-profit customers as tax exempt. Manage certificates with expiry dates and state-specific rules.

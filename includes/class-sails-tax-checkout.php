@@ -58,8 +58,34 @@ class Sails_Tax_Checkout {
       return;
     }
 
-    // Calculate taxable amount (subtotal + shipping). MVP: treat everything taxable.
-    $amount = floatval($cart->get_subtotal() + $cart->get_shipping_total());
+    // Check for product category exemptions
+    $product_exempt_amount = 0;
+    $product_exempt_items = [];
+    
+    if (class_exists('Sails_Tax_Product_Exemptions') && Sails_Tax_Product_Exemptions::is_enabled()) {
+      $exemption_breakdown = Sails_Tax_Product_Exemptions::get_cart_exemption_breakdown($cart, $toState);
+      $product_exempt_amount = $exemption_breakdown['exempt_amount'];
+      $product_exempt_items = $exemption_breakdown['exempt_items'];
+      
+      // If entire cart is exempt, apply $0 tax
+      if ($exemption_breakdown['taxable_amount'] <= 0 && $product_exempt_amount > 0) {
+        $cart->add_fee(__('Sales Tax', 'sails-tax'), 0, false);
+        $this->store_last_notice([
+          'confidence' => 'product_exempt',
+          'message' => __('All items in cart are tax-exempt', 'sails-tax'),
+          'taxAmount' => 0,
+          'rate' => 0,
+          'product_exempt' => true,
+          'exempt_items' => $product_exempt_items,
+        ]);
+        return;
+      }
+    }
+
+    // Calculate taxable amount (taxable subtotal + shipping)
+    $subtotal = floatval($cart->get_subtotal());
+    $taxable_subtotal = $subtotal - $product_exempt_amount;
+    $amount = floatval($taxable_subtotal + $cart->get_shipping_total());
     if ($amount <= 0) return;
 
     // Check cache first to avoid redundant API calls
@@ -67,7 +93,7 @@ class Sails_Tax_Checkout {
     $cached = get_transient($cache_key);
     
     if ($cached !== false) {
-      $this->apply_tax_result($cart, $cached);
+      $this->apply_tax_result($cart, $cached, $product_exempt_amount, $product_exempt_items);
       return;
     }
 
@@ -89,10 +115,10 @@ class Sails_Tax_Checkout {
 
     // Cache successful result
     set_transient($cache_key, $result, self::CACHE_TTL);
-    $this->apply_tax_result($cart, $result);
+    $this->apply_tax_result($cart, $result, $product_exempt_amount, $product_exempt_items);
   }
 
-  private function apply_tax_result($cart, $result) {
+  private function apply_tax_result($cart, $result, $product_exempt_amount = 0, $product_exempt_items = []) {
     $taxAmount = isset($result['taxAmount']) ? floatval($result['taxAmount']) : 0;
     $confidence = $result['confidence'] ?? 'state_only';
     $message = $result['message'] ?? '';
@@ -102,12 +128,21 @@ class Sails_Tax_Checkout {
     $cart->add_fee(__('Sales Tax', 'sails-tax'), $taxAmount, false);
 
     // Store disclaimer for rendering and for order meta.
-    $this->store_last_notice([
+    $notice_data = [
       'confidence' => $confidence,
       'message' => $message,
       'taxAmount' => $taxAmount,
       'rate' => $rate,
-    ]);
+    ];
+
+    // Include product exemption info if applicable
+    if ($product_exempt_amount > 0) {
+      $notice_data['product_exempt_amount'] = $product_exempt_amount;
+      $notice_data['product_exempt_items'] = $product_exempt_items;
+      $notice_data['has_partial_exemption'] = true;
+    }
+
+    $this->store_last_notice($notice_data);
   }
 
   private function get_cache_key($amount, $zip, $state) {
@@ -182,6 +217,14 @@ class Sails_Tax_Checkout {
       }
     }
 
+    // Store product exemption details if applicable
+    if (!empty($data['product_exempt']) || !empty($data['has_partial_exemption'])) {
+      $order->update_meta_data('_sails_tax_product_exempt', 'yes');
+      if (!empty($data['product_exempt_amount'])) {
+        $order->update_meta_data('_sails_tax_product_exempt_amount', $data['product_exempt_amount']);
+      }
+    }
+
     $order->save();
 
     // Add order note for admin visibility
@@ -194,6 +237,17 @@ class Sails_Tax_Checkout {
       if (!empty($data['exempt_cert'])) {
         $note .= ' ' . sprintf(__('Certificate: %s', 'sails-tax'), $data['exempt_cert']);
       }
+      $order->add_order_note($note, false);
+    } elseif ($confidence === 'product_exempt') {
+      $note = __('Sails Tax: All products in this order are tax-exempt.', 'sails-tax');
+      $order->add_order_note($note, false);
+    } elseif (!empty($data['has_partial_exemption'])) {
+      $exempt_amount = wc_price($data['product_exempt_amount'] ?? 0);
+      $note = sprintf(
+        /* translators: %s: exempt amount */
+        __('Sails Tax: %s of this order was exempt from tax (product category exemption).', 'sails-tax'),
+        $exempt_amount
+      );
       $order->add_order_note($note, false);
     } elseif ($confidence !== 'exact_zip') {
       $note = sprintf(

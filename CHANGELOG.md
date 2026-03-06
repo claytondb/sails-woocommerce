@@ -2,6 +2,25 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [0.6.0] - 2026-03-06
+
+### Added
+- **Product Category Exemptions** - Mark entire product categories as tax-exempt:
+  - New admin page: WooCommerce → Product Exemptions
+  - Preset exemption types: Groceries, Clothing, Medicine, Digital Products, Custom
+  - State-specific exemptions (e.g., groceries only exempt in certain states)
+  - Multi-select category picker with Select2
+  - Multi-select state picker with all 50 US states + DC
+  - Mixed cart support (partial exemptions calculated correctly)
+  - Full cart exemption when all products are exempt (skips API call)
+  - Order notes showing exempt amount for partial exemptions
+  - Order metadata for audit trail
+
+### Improved
+- Checkout calculates tax only on taxable portion of cart
+- Common exemption states pre-filled when selecting preset exemption types
+- Clean admin UI with rule-based configuration
+
 ## [0.5.0] - 2026-03-06
 
 ### Added

@@ -14,7 +14,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('SAILS_TAX_VERSION', '0.5.0');
+define('SAILS_TAX_VERSION', '0.6.0');
 define('SAILS_TAX_PLUGIN_FILE', __FILE__);
 define('SAILS_TAX_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
@@ -40,11 +40,13 @@ function action_init() {
     require_once SAILS_TAX_PLUGIN_DIR . 'includes/class-sails-tax-order-display.php';
     require_once SAILS_TAX_PLUGIN_DIR . 'includes/class-sails-tax-reports.php';
     require_once SAILS_TAX_PLUGIN_DIR . 'includes/class-sails-tax-exemptions.php';
+    require_once SAILS_TAX_PLUGIN_DIR . 'includes/class-sails-tax-product-exemptions.php';
 
     (new Sails_Tax_Settings())->register();
     (new Sails_Tax_Checkout())->register();
     (new Sails_Tax_Order_Display())->register();
     (new Sails_Tax_Reports())->register();
     (new Sails_Tax_Exemptions())->register();
+    (new Sails_Tax_Product_Exemptions())->register();
   });
 }

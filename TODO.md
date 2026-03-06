@@ -1,6 +1,6 @@
 # Sails Tax for WooCommerce - Task List
 
-Last updated: 2026-03-06 (4:00 AM)
+Last updated: 2026-03-06 (5:00 AM)
 
 ## ✅ Completed
 
@@ -31,12 +31,15 @@ Last updated: 2026-03-06 (4:00 AM)
 - [x] User list column showing exempt status
 - [x] Order-level exemption tracking
 
-### 2. Product Category Exemptions
+### 2. Product Category Exemptions ✅ DONE (2026-03-06)
 **Priority:** MEDIUM
 
-- [ ] Per-category tax settings
-- [ ] Non-taxable product types (groceries, clothing in some states)
-- [ ] Mixed cart handling
+- [x] Per-category tax settings
+- [x] Non-taxable product types (groceries, clothing, medicine, digital)
+- [x] State-specific exemptions (only exempt in certain states)
+- [x] Mixed cart handling (partial exemptions)
+- [x] Admin UI with Select2 multi-select for categories and states
+- [x] Order meta storage and notes for exempt products
 
 ### 3. Refund Integration
 **Priority:** MEDIUM

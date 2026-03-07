@@ -4,7 +4,7 @@ Tags: sales tax, woocommerce, tax, tax calculation, ecommerce
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 0.8.0
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,7 @@ Sails Tax for WooCommerce automatically calculates sales tax at checkout using r
 * **ZIP-level accuracy** with fallback to state rates when needed
 * **Confidence indicators** so you know how precise each calculation is
 * **Tax reports dashboard** with CSV export to track total tax collected, refunds, net liability, and trends
+* **Monthly summary emails** - automated tax reports delivered to your inbox on the 1st of each month
 * **Tax exemptions** for wholesale, government, non-profit, and other exempt customers
 * **Product category exemptions** for groceries, clothing, medicine, and other non-taxable products
 * **Caching** to minimize API calls and keep your checkout fast
@@ -102,6 +103,15 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 
 == Changelog ==
 
+= 0.9.0 =
+* NEW: Monthly Summary Emails - automated tax reports delivered to your inbox
+* Beautiful HTML email template showing gross tax, refunds, and net liability
+* Top states breakdown with order counts and tax amounts
+* Calculation accuracy visualization (confidence levels)
+* Configurable email recipients (comma-separated list)
+* "Send Test Email" button to preview reports
+* Scheduled for the 1st of each month at 8am
+
 = 0.8.0 =
 * NEW: CSV Export - export tax data from the reports dashboard
 * Summary Report: totals, state breakdown, confidence analysis
@@ -168,6 +178,9 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 * Settings page for API key
 
 == Upgrade Notice ==
+
+= 0.9.0 =
+NEW: Monthly Summary Emails! Receive automated tax reports on the 1st of each month. Beautiful HTML emails show your gross tax, refunds, net liability, top states, and calculation accuracy. Configure recipients in settings.
 
 = 0.8.0 =
 NEW: CSV Export! Export your tax data as Summary Report (totals + state breakdown) or Detailed Orders (all order data). Plus new Tax by State breakdown in the dashboard.

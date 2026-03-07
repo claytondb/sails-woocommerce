@@ -2,6 +2,23 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [0.9.0] - 2026-03-07
+
+### Added
+- **Monthly Summary Emails** - Automated monthly tax reports delivered to your inbox:
+  - Beautiful HTML email template with tax summary
+  - Shows gross tax, refunds, and net tax liability
+  - Top states breakdown with order counts
+  - Calculation accuracy (confidence level) visualization
+  - Scheduled for the 1st of each month at 8am
+  - Configurable email recipients (comma-separated list)
+  - "Send Test Email" button to preview the report
+  - Works with WordPress cron system
+  
+### Improved
+- Settings page now includes "Monthly Email Reports" section
+- Enable/disable email reports from settings
+
 ## [0.8.0] - 2026-03-07
 
 ### Added

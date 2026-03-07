@@ -1,6 +1,6 @@
 # Sails Tax for WooCommerce - Task List
 
-Last updated: 2026-03-07 (12:00 AM)
+Last updated: 2026-03-07 (1:00 AM)
 
 ## ✅ Completed
 
@@ -56,10 +56,10 @@ Last updated: 2026-03-07 (12:00 AM)
 
 ## 🎯 Future Enhancements
 
-### Advanced Reporting
-- [ ] CSV export of tax data
-- [ ] Date range filtering
-- [ ] Tax by state breakdown
+### Advanced Reporting ✅ MOSTLY DONE (2026-03-07)
+- [x] CSV export of tax data (Summary + Detailed Orders)
+- [x] Date range filtering (already had this)
+- [x] Tax by state breakdown
 - [ ] Monthly summary emails
 
 ### Multi-Nexus Support
@@ -87,6 +87,6 @@ Last updated: 2026-03-07 (12:00 AM)
 
 ## 📊 Stats
 
-- **Version:** 0.7.0
+- **Version:** 0.8.0
 - **WordPress.org:** Pending review
 - **i18n:** Ready for translations

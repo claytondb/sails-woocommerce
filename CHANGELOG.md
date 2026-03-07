@@ -2,6 +2,27 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [0.8.0] - 2026-03-07
+
+### Added
+- **CSV Export** - Export tax data from the reports dashboard:
+  - Export dropdown menu with two options
+  - **Summary Report**: Totals, state breakdown, confidence analysis
+  - **Detailed Orders**: All orders with full tax data (14 columns)
+  - Respects current date range filter
+  - Excel-compatible UTF-8 encoding (BOM)
+  - Security: nonce verification and capability checks
+
+- **Tax by State Breakdown** - New section in reports dashboard:
+  - Shows orders and tax collected per state
+  - Average tax rate per state
+  - Top 10 displayed, full list in CSV export
+  - Full HPOS support with legacy fallback
+
+### Improved
+- Reports dashboard layout reorganized for better information hierarchy
+- Date filter and export controls grouped in toolbar
+
 ## [0.7.0] - 2026-03-07
 
 ### Added

@@ -4,6 +4,7 @@
  * 
  * Provides tax reporting dashboard for WooCommerce admins.
  * Shows tax calculations, confidence levels, and totals over time.
+ * Includes CSV export functionality.
  *
  * @package SailsTax
  * @since 0.4.0
@@ -17,6 +18,7 @@ class Sails_Tax_Reports {
    */
   public function register() {
     add_action('admin_menu', [$this, 'add_reports_page']);
+    add_action('admin_post_sails_tax_export_csv', [$this, 'handle_csv_export']);
   }
 
   /**
@@ -50,20 +52,58 @@ class Sails_Tax_Reports {
     $refund_stats = Sails_Tax_Refunds::get_refund_statistics($start_date, $end_date);
     $net_tax = $stats['total_tax'] - $refund_stats['total_refund_tax'];
     $recent_refunds = Sails_Tax_Refunds::get_recent_refunds(5);
+    
+    // State breakdown for detailed view
+    $state_breakdown = $this->get_state_breakdown($start_date, $end_date);
 
     ?>
     <div class="wrap">
       <h1><?php esc_html_e('Sails Tax Reports', 'sails-tax'); ?></h1>
       
-      <!-- Date Range Filter -->
-      <form method="get" style="margin: 20px 0;">
-        <input type="hidden" name="page" value="sails-tax-reports">
-        <label for="start_date"><?php esc_html_e('From:', 'sails-tax'); ?></label>
-        <input type="date" id="start_date" name="start_date" value="<?php echo esc_attr($start_date); ?>">
-        <label for="end_date" style="margin-left: 15px;"><?php esc_html_e('To:', 'sails-tax'); ?></label>
-        <input type="date" id="end_date" name="end_date" value="<?php echo esc_attr($end_date); ?>">
-        <button type="submit" class="button" style="margin-left: 15px;"><?php esc_html_e('Filter', 'sails-tax'); ?></button>
-      </form>
+      <!-- Date Range Filter & Export -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin: 20px 0;">
+        <form method="get" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <input type="hidden" name="page" value="sails-tax-reports">
+          <label for="start_date"><?php esc_html_e('From:', 'sails-tax'); ?></label>
+          <input type="date" id="start_date" name="start_date" value="<?php echo esc_attr($start_date); ?>">
+          <label for="end_date"><?php esc_html_e('To:', 'sails-tax'); ?></label>
+          <input type="date" id="end_date" name="end_date" value="<?php echo esc_attr($end_date); ?>">
+          <button type="submit" class="button"><?php esc_html_e('Filter', 'sails-tax'); ?></button>
+        </form>
+        
+        <!-- Export Dropdown -->
+        <div style="position: relative; display: inline-block;">
+          <button type="button" class="button button-secondary" id="sails-export-btn" onclick="document.getElementById('sails-export-menu').classList.toggle('visible');">
+            <span class="dashicons dashicons-download" style="vertical-align: middle; margin-right: 5px;"></span>
+            <?php esc_html_e('Export CSV', 'sails-tax'); ?>
+            <span class="dashicons dashicons-arrow-down-alt2" style="vertical-align: middle;"></span>
+          </button>
+          <div id="sails-export-menu" style="display: none; position: absolute; right: 0; top: 100%; background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); z-index: 100; min-width: 200px;">
+            <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=sails_tax_export_csv&type=summary&start_date=' . $start_date . '&end_date=' . $end_date), 'sails_tax_export')); ?>" 
+               class="sails-export-option" style="display: block; padding: 10px 15px; text-decoration: none; color: #1d2327; border-bottom: 1px solid #eee;">
+              <strong><?php esc_html_e('Summary Report', 'sails-tax'); ?></strong><br>
+              <small style="color: #666;"><?php esc_html_e('Totals and state breakdown', 'sails-tax'); ?></small>
+            </a>
+            <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=sails_tax_export_csv&type=detailed&start_date=' . $start_date . '&end_date=' . $end_date), 'sails_tax_export')); ?>"
+               class="sails-export-option" style="display: block; padding: 10px 15px; text-decoration: none; color: #1d2327;">
+              <strong><?php esc_html_e('Detailed Orders', 'sails-tax'); ?></strong><br>
+              <small style="color: #666;"><?php esc_html_e('All orders with tax data', 'sails-tax'); ?></small>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <style>
+        #sails-export-menu.visible { display: block !important; }
+        .sails-export-option:hover { background: #f0f6fc; }
+      </style>
+      <script>
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('#sails-export-btn') && !e.target.closest('#sails-export-menu')) {
+            document.getElementById('sails-export-menu').classList.remove('visible');
+          }
+        });
+      </script>
 
       <!-- Summary Cards -->
       <div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
@@ -75,8 +115,9 @@ class Sails_Tax_Reports {
         <?php $this->render_stat_card(__('Exact ZIP Matches', 'sails-tax'), number_format($stats['exact_zip_percent'], 1) . '%', 'dashicons-yes-alt'); ?>
       </div>
 
-      <!-- Confidence Breakdown -->
+      <!-- Main Content Area -->
       <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+        <!-- Left Column: Confidence + State Breakdown -->
         <div style="flex: 1; min-width: 300px;">
           <h2><?php esc_html_e('Confidence Level Breakdown', 'sails-tax'); ?></h2>
           <table class="widefat striped">
@@ -109,9 +150,40 @@ class Sails_Tax_Reports {
               <?php endif; ?>
             </tbody>
           </table>
+          
+          <?php if (!empty($state_breakdown)): ?>
+          <h2 style="margin-top: 30px;"><?php esc_html_e('Tax by State', 'sails-tax'); ?></h2>
+          <table class="widefat striped">
+            <thead>
+              <tr>
+                <th><?php esc_html_e('State', 'sails-tax'); ?></th>
+                <th><?php esc_html_e('Orders', 'sails-tax'); ?></th>
+                <th><?php esc_html_e('Tax Collected', 'sails-tax'); ?></th>
+                <th><?php esc_html_e('Avg Rate', 'sails-tax'); ?></th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach (array_slice($state_breakdown, 0, 10) as $row): ?>
+              <tr>
+                <td><strong><?php echo esc_html($row['state']); ?></strong></td>
+                <td><?php echo esc_html(number_format($row['count'])); ?></td>
+                <td><?php echo wc_price($row['total_tax']); ?></td>
+                <td><?php echo esc_html(number_format($row['avg_rate'] * 100, 2)); ?>%</td>
+              </tr>
+              <?php endforeach; ?>
+              <?php if (count($state_breakdown) > 10): ?>
+              <tr>
+                <td colspan="4" style="text-align: center; color: #666; font-style: italic;">
+                  <?php printf(esc_html__('+ %d more states (export CSV for full list)', 'sails-tax'), count($state_breakdown) - 10); ?>
+                </td>
+              </tr>
+              <?php endif; ?>
+            </tbody>
+          </table>
+          <?php endif; ?>
         </div>
 
-        <!-- Recent Orders -->
+        <!-- Right Column: Recent Orders -->
         <div style="flex: 1; min-width: 400px;">
           <h2><?php esc_html_e('Recent Orders with Sails Tax', 'sails-tax'); ?></h2>
           <table class="widefat striped">
@@ -194,6 +266,234 @@ class Sails_Tax_Reports {
       </div>
     </div>
     <?php
+  }
+
+  /**
+   * Handle CSV export requests
+   */
+  public function handle_csv_export() {
+    // Verify nonce and permissions
+    if (!wp_verify_nonce($_GET['_wpnonce'], 'sails_tax_export')) {
+      wp_die(__('Security check failed.', 'sails-tax'));
+    }
+    
+    if (!current_user_can('view_woocommerce_reports')) {
+      wp_die(__('You do not have permission to export reports.', 'sails-tax'));
+    }
+    
+    $type = sanitize_text_field($_GET['type'] ?? 'summary');
+    $start_date = sanitize_text_field($_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days')));
+    $end_date = sanitize_text_field($_GET['end_date'] ?? date('Y-m-d'));
+    
+    // Generate filename
+    $filename = sprintf(
+      'sails-tax-%s-%s-to-%s.csv',
+      $type,
+      $start_date,
+      $end_date
+    );
+    
+    // Set headers for CSV download
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
+    $output = fopen('php://output', 'w');
+    
+    // Add BOM for Excel compatibility with UTF-8
+    fputs($output, "\xEF\xBB\xBF");
+    
+    if ($type === 'detailed') {
+      $this->export_detailed_orders($output, $start_date, $end_date);
+    } else {
+      $this->export_summary($output, $start_date, $end_date);
+    }
+    
+    fclose($output);
+    exit;
+  }
+  
+  /**
+   * Export summary report to CSV
+   */
+  private function export_summary($output, $start_date, $end_date) {
+    $stats = $this->get_tax_statistics($start_date, $end_date);
+    $confidence_breakdown = $this->get_confidence_breakdown($start_date, $end_date);
+    $state_breakdown = $this->get_state_breakdown($start_date, $end_date);
+    $refund_stats = Sails_Tax_Refunds::get_refund_statistics($start_date, $end_date);
+    
+    // Header section
+    fputcsv($output, ['Sails Tax Summary Report']);
+    fputcsv($output, ['Generated', date('Y-m-d H:i:s')]);
+    fputcsv($output, ['Date Range', $start_date . ' to ' . $end_date]);
+    fputcsv($output, []);
+    
+    // Totals section
+    fputcsv($output, ['=== TOTALS ===']);
+    fputcsv($output, ['Metric', 'Value']);
+    fputcsv($output, ['Gross Tax Collected', '$' . number_format($stats['total_tax'], 2)]);
+    fputcsv($output, ['Tax Refunded', '$' . number_format($refund_stats['total_refund_tax'], 2)]);
+    fputcsv($output, ['Net Tax', '$' . number_format($stats['total_tax'] - $refund_stats['total_refund_tax'], 2)]);
+    fputcsv($output, ['Orders with Tax', $stats['order_count']]);
+    fputcsv($output, ['Refund Count', $refund_stats['refund_count']]);
+    fputcsv($output, ['Average Tax Rate', number_format($stats['avg_rate'] * 100, 2) . '%']);
+    fputcsv($output, ['Exact ZIP Match %', number_format($stats['exact_zip_percent'], 1) . '%']);
+    fputcsv($output, []);
+    
+    // Confidence breakdown
+    fputcsv($output, ['=== CONFIDENCE BREAKDOWN ===']);
+    fputcsv($output, ['Confidence Level', 'Orders', 'Tax Amount', 'Percentage']);
+    foreach ($confidence_breakdown as $row) {
+      fputcsv($output, [
+        ucwords(str_replace('_', ' ', $row['confidence'])),
+        $row['count'],
+        '$' . number_format($row['total_tax'], 2),
+        number_format($row['percentage'], 1) . '%'
+      ]);
+    }
+    fputcsv($output, []);
+    
+    // State breakdown
+    if (!empty($state_breakdown)) {
+      fputcsv($output, ['=== TAX BY STATE ===']);
+      fputcsv($output, ['State', 'Orders', 'Tax Collected', 'Average Rate']);
+      foreach ($state_breakdown as $row) {
+        fputcsv($output, [
+          $row['state'],
+          $row['count'],
+          '$' . number_format($row['total_tax'], 2),
+          number_format($row['avg_rate'] * 100, 2) . '%'
+        ]);
+      }
+    }
+  }
+  
+  /**
+   * Export detailed orders to CSV
+   */
+  private function export_detailed_orders($output, $start_date, $end_date) {
+    // Header row
+    fputcsv($output, [
+      'Order ID',
+      'Order Date',
+      'Order Status',
+      'Customer Email',
+      'Billing State',
+      'Billing City',
+      'Billing ZIP',
+      'Order Subtotal',
+      'Tax Amount',
+      'Tax Rate',
+      'Confidence',
+      'Customer Exempt',
+      'Product Exempt Amount',
+      'Tax Refunded'
+    ]);
+    
+    // Fetch all orders with Sails tax data in date range
+    $orders = $this->get_all_tax_orders($start_date, $end_date);
+    
+    foreach ($orders as $order) {
+      $order_obj = wc_get_order($order['id']);
+      if (!$order_obj) continue;
+      
+      fputcsv($output, [
+        $order['id'],
+        $order_obj->get_date_created()->date('Y-m-d H:i:s'),
+        $order_obj->get_status(),
+        $order_obj->get_billing_email(),
+        $order_obj->get_billing_state(),
+        $order_obj->get_billing_city(),
+        $order_obj->get_billing_postcode(),
+        $order_obj->get_subtotal(),
+        $order_obj->get_meta('_sails_tax_amount') ?: '0',
+        $order_obj->get_meta('_sails_tax_rate') ?: '0',
+        $order_obj->get_meta('_sails_tax_confidence') ?: 'unknown',
+        $order_obj->get_meta('_sails_tax_exempt') ? 'Yes' : 'No',
+        $order_obj->get_meta('_sails_tax_product_exempt_amount') ?: '0',
+        $order_obj->get_meta('_sails_tax_refunded') ?: '0'
+      ]);
+    }
+  }
+  
+  /**
+   * Get all orders with Sails tax data in date range
+   */
+  private function get_all_tax_orders($start_date, $end_date) {
+    $orders = wc_get_orders([
+      'limit' => -1, // All orders
+      'orderby' => 'date',
+      'order' => 'DESC',
+      'date_created' => $start_date . '...' . $end_date,
+      'meta_key' => '_sails_tax_confidence',
+      'meta_compare' => 'EXISTS',
+    ]);
+    
+    $result = [];
+    foreach ($orders as $order) {
+      $result[] = ['id' => $order->get_id()];
+    }
+    
+    return $result;
+  }
+  
+  /**
+   * Get tax breakdown by state
+   */
+  private function get_state_breakdown($start_date, $end_date) {
+    global $wpdb;
+    
+    $use_hpos = class_exists('\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController') 
+      && wc_get_container()->get(\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController::class)->custom_orders_table_usage_is_enabled();
+    
+    if ($use_hpos) {
+      $orders_table = $wpdb->prefix . 'wc_orders';
+      $meta_table = $wpdb->prefix . 'wc_orders_meta';
+      $addr_table = $wpdb->prefix . 'wc_order_addresses';
+      
+      $results = $wpdb->get_results($wpdb->prepare(
+        "SELECT 
+          a.state as state,
+          COUNT(DISTINCT o.id) as count,
+          COALESCE(SUM(CAST(ma.meta_value AS DECIMAL(10,2))), 0) as total_tax,
+          COALESCE(AVG(CAST(mr.meta_value AS DECIMAL(10,6))), 0) as avg_rate
+        FROM {$orders_table} o
+        INNER JOIN {$addr_table} a ON o.id = a.order_id AND a.address_type = 'billing'
+        INNER JOIN {$meta_table} ma ON o.id = ma.order_id AND ma.meta_key = '_sails_tax_amount'
+        LEFT JOIN {$meta_table} mr ON o.id = mr.order_id AND mr.meta_key = '_sails_tax_rate'
+        WHERE o.date_created_gmt >= %s AND o.date_created_gmt <= %s
+        AND o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold')
+        AND a.state IS NOT NULL AND a.state != ''
+        GROUP BY a.state
+        ORDER BY total_tax DESC",
+        $start_date . ' 00:00:00',
+        $end_date . ' 23:59:59'
+      ), ARRAY_A);
+    } else {
+      // Legacy query using billing_state from postmeta
+      $results = $wpdb->get_results($wpdb->prepare(
+        "SELECT 
+          ms.meta_value as state,
+          COUNT(DISTINCT p.ID) as count,
+          COALESCE(SUM(CAST(ma.meta_value AS DECIMAL(10,2))), 0) as total_tax,
+          COALESCE(AVG(CAST(mr.meta_value AS DECIMAL(10,6))), 0) as avg_rate
+        FROM {$wpdb->posts} p
+        INNER JOIN {$wpdb->postmeta} ms ON p.ID = ms.post_id AND ms.meta_key = '_billing_state'
+        INNER JOIN {$wpdb->postmeta} ma ON p.ID = ma.post_id AND ma.meta_key = '_sails_tax_amount'
+        LEFT JOIN {$wpdb->postmeta} mr ON p.ID = mr.post_id AND mr.meta_key = '_sails_tax_rate'
+        WHERE p.post_type = 'shop_order'
+        AND p.post_date >= %s AND p.post_date <= %s
+        AND p.post_status IN ('wc-completed', 'wc-processing', 'wc-on-hold')
+        AND ms.meta_value IS NOT NULL AND ms.meta_value != ''
+        GROUP BY ms.meta_value
+        ORDER BY total_tax DESC",
+        $start_date . ' 00:00:00',
+        $end_date . ' 23:59:59'
+      ), ARRAY_A);
+    }
+    
+    return $results ?: [];
   }
 
   /**

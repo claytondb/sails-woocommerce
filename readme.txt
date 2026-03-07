@@ -4,7 +4,7 @@ Tags: sales tax, woocommerce, tax, tax calculation, ecommerce
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 0.6.0
+Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,7 @@ Sails Tax for WooCommerce automatically calculates sales tax at checkout using r
 * **Real-time tax calculation** at checkout based on customer address
 * **ZIP-level accuracy** with fallback to state rates when needed
 * **Confidence indicators** so you know how precise each calculation is
-* **Tax reports dashboard** to track total tax collected, confidence breakdowns, and trends
+* **Tax reports dashboard** to track total tax collected, refunds, net liability, and trends
 * **Tax exemptions** for wholesale, government, non-profit, and other exempt customers
 * **Product category exemptions** for groceries, clothing, medicine, and other non-taxable products
 * **Caching** to minimize API calls and keep your checkout fast
@@ -102,6 +102,14 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 
 == Changelog ==
 
+= 0.7.0 =
+* NEW: Refund Tracking - automatic tax refund calculations when processing refunds
+* Tax Reports Dashboard now shows Gross Tax, Tax Refunded, and Net Tax
+* Recent Refunds widget shows orders with tax adjustments
+* Order notes for refund tax amounts
+* Handles refund deletion and recalculates totals correctly
+* Full HPOS support for refund queries
+
 = 0.6.0 =
 * NEW: Product Category Exemptions - mark entire categories as tax-exempt
 * Preset exemption types: Groceries, Clothing, Medicine, Digital Products
@@ -151,6 +159,9 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 * Settings page for API key
 
 == Upgrade Notice ==
+
+= 0.7.0 =
+NEW: Refund Tracking! Tax reports now show Gross Tax, Tax Refunded, and Net Tax. Automatic tax refund calculations when processing WooCommerce refunds.
 
 = 0.6.0 =
 NEW: Product Category Exemptions! Mark groceries, clothing, medicine, and other categories as tax-exempt. Supports state-specific rules (e.g., groceries exempt in some states only).

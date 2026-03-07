@@ -2,6 +2,25 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [0.7.0] - 2026-03-07
+
+### Added
+- **Refund Tracking** - Full refund integration for accurate tax reporting:
+  - Automatic tax refund calculation when refunds are processed
+  - Tracks refund tax using original order's tax rate
+  - Proportional fallback when rate not available
+  - Order notes showing estimated tax refund amount
+  - New order metadata: `_sails_tax_refunded`, `_sails_refund_tax`, `_sails_refund_rate`
+
+### Improved
+- **Tax Reports Dashboard** - Enhanced with refund data:
+  - New "Gross Tax Collected" and "Tax Refunded" cards
+  - New "Net Tax" card showing actual tax liability
+  - Recent Refunds widget showing orders with tax adjustments
+  - Color-coded cards (red for refunds, green for net)
+- Handles refund deletion and recalculates totals correctly
+- Full HPOS support for refund queries
+
 ## [0.6.0] - 2026-03-06
 
 ### Added

@@ -1,6 +1,6 @@
 # Sails Tax for WooCommerce - Task List
 
-Last updated: 2026-03-06 (5:00 AM)
+Last updated: 2026-03-07 (12:00 AM)
 
 ## ✅ Completed
 
@@ -41,12 +41,16 @@ Last updated: 2026-03-06 (5:00 AM)
 - [x] Admin UI with Select2 multi-select for categories and states
 - [x] Order meta storage and notes for exempt products
 
-### 3. Refund Integration
+### 3. Refund Integration ✅ DONE (2026-03-07)
 **Priority:** MEDIUM
 
-- [ ] Track refunded orders
-- [ ] Adjust tax reports for refunds
-- [ ] Sync refund data with Sails API (if supported)
+- [x] Track refunded orders
+- [x] Adjust tax reports for refunds
+- [x] Calculate refund tax using original order's tax rate
+- [x] Handle refund deletion (recalculate totals)
+- [x] Order notes for refund tax amounts
+- [x] Reports show gross/refunded/net tax
+- [x] Recent Refunds widget in reports
 
 ---
 
@@ -83,6 +87,6 @@ Last updated: 2026-03-06 (5:00 AM)
 
 ## 📊 Stats
 
-- **Version:** 0.3.1
+- **Version:** 0.7.0
 - **WordPress.org:** Pending review
 - **i18n:** Ready for translations

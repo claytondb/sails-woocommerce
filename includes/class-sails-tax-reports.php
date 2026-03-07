@@ -45,6 +45,11 @@ class Sails_Tax_Reports {
     $stats = $this->get_tax_statistics($start_date, $end_date);
     $confidence_breakdown = $this->get_confidence_breakdown($start_date, $end_date);
     $recent_orders = $this->get_recent_tax_orders(10);
+    
+    // Fetch refund statistics
+    $refund_stats = Sails_Tax_Refunds::get_refund_statistics($start_date, $end_date);
+    $net_tax = $stats['total_tax'] - $refund_stats['total_refund_tax'];
+    $recent_refunds = Sails_Tax_Refunds::get_recent_refunds(5);
 
     ?>
     <div class="wrap">
@@ -61,8 +66,10 @@ class Sails_Tax_Reports {
       </form>
 
       <!-- Summary Cards -->
-      <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-        <?php $this->render_stat_card(__('Total Tax Collected', 'sails-tax'), wc_price($stats['total_tax']), 'dashicons-money-alt'); ?>
+      <div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
+        <?php $this->render_stat_card(__('Gross Tax Collected', 'sails-tax'), wc_price($stats['total_tax']), 'dashicons-money-alt'); ?>
+        <?php $this->render_stat_card(__('Tax Refunded', 'sails-tax'), '-' . wc_price($refund_stats['total_refund_tax']), 'dashicons-undo', '#b32d2e'); ?>
+        <?php $this->render_stat_card(__('Net Tax', 'sails-tax'), wc_price($net_tax), 'dashicons-chart-area', '#46b450'); ?>
         <?php $this->render_stat_card(__('Orders with Tax', 'sails-tax'), number_format($stats['order_count']), 'dashicons-cart'); ?>
         <?php $this->render_stat_card(__('Average Tax Rate', 'sails-tax'), number_format($stats['avg_rate'] * 100, 2) . '%', 'dashicons-chart-line'); ?>
         <?php $this->render_stat_card(__('Exact ZIP Matches', 'sails-tax'), number_format($stats['exact_zip_percent'], 1) . '%', 'dashicons-yes-alt'); ?>
@@ -144,6 +151,37 @@ class Sails_Tax_Reports {
         </div>
       </div>
 
+      <?php if (!empty($recent_refunds)): ?>
+      <!-- Refunds Section -->
+      <div style="margin-top: 30px;">
+        <h2><?php esc_html_e('Recent Refunds with Tax Adjustments', 'sails-tax'); ?></h2>
+        <table class="widefat striped" style="max-width: 600px;">
+          <thead>
+            <tr>
+              <th><?php esc_html_e('Order', 'sails-tax'); ?></th>
+              <th><?php esc_html_e('Date', 'sails-tax'); ?></th>
+              <th><?php esc_html_e('Original Tax', 'sails-tax'); ?></th>
+              <th><?php esc_html_e('Tax Refunded', 'sails-tax'); ?></th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($recent_refunds as $refund_data): ?>
+            <tr>
+              <td>
+                <a href="<?php echo esc_url(admin_url('post.php?post=' . $refund_data['id'] . '&action=edit')); ?>">
+                  #<?php echo esc_html($refund_data['id']); ?>
+                </a>
+              </td>
+              <td><?php echo esc_html($refund_data['date']); ?></td>
+              <td><?php echo wc_price($refund_data['original_tax']); ?></td>
+              <td style="color: #b32d2e;">-<?php echo wc_price($refund_data['refund_tax']); ?></td>
+            </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+      <?php endif; ?>
+
       <!-- Info Box -->
       <div style="margin-top: 30px; padding: 15px; background: #f0f6fc; border-left: 4px solid #2271b1;">
         <strong><?php esc_html_e('About Confidence Levels', 'sails-tax'); ?></strong>
@@ -161,10 +199,10 @@ class Sails_Tax_Reports {
   /**
    * Render a stat card
    */
-  private function render_stat_card($label, $value, $icon) {
+  private function render_stat_card($label, $value, $icon, $color = '#2271b1') {
     ?>
     <div style="flex: 1; min-width: 150px; background: #fff; padding: 20px; border: 1px solid #c3c4c7; border-radius: 4px;">
-      <span class="dashicons <?php echo esc_attr($icon); ?>" style="color: #2271b1; font-size: 24px; margin-bottom: 10px; display: block;"></span>
+      <span class="dashicons <?php echo esc_attr($icon); ?>" style="color: <?php echo esc_attr($color); ?>; font-size: 24px; margin-bottom: 10px; display: block;"></span>
       <div style="font-size: 24px; font-weight: 600; color: #1d2327;"><?php echo $value; ?></div>
       <div style="color: #50575e; margin-top: 5px;"><?php echo esc_html($label); ?></div>
     </div>

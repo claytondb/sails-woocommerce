@@ -1,6 +1,12 @@
 # Sails Tax for WooCommerce - Task List
 
-Last updated: 2026-03-07 (2:00 AM)
+Last updated: 2026-03-08 (3:00 AM)
+
+## 🎉 v1.0.0 Released!
+
+First stable release shipped March 8, 2026. Production-ready with complete feature set.
+
+---
 
 ## ✅ Completed
 
@@ -87,6 +93,7 @@ Last updated: 2026-03-07 (2:00 AM)
 
 ## 📊 Stats
 
-- **Version:** 0.9.0
+- **Version:** 1.0.0 🎉
 - **WordPress.org:** Pending review
 - **i18n:** Ready for translations
+- **Status:** Production-ready

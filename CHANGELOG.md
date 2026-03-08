@@ -2,6 +2,41 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [1.0.0] - 2026-03-08
+
+### 🎉 First Stable Release!
+
+Sails Tax for WooCommerce is now production-ready. This milestone release includes everything you need for accurate sales tax calculation in your WooCommerce store.
+
+### Complete Feature Set
+
+**Core Tax Calculation**
+- Real-time tax calculation at checkout
+- ZIP-level accuracy with state-level fallback
+- Confidence indicators for each calculation
+- Rate caching to minimize API calls
+
+**Tax Exemptions**
+- Customer exemptions with certificate management
+- Product category exemptions (groceries, clothing, medicine, digital)
+- State-specific exemption rules
+- Automatic API skip for exempt orders
+
+**Reports & Analytics**
+- Tax Reports dashboard with date range filtering
+- Tax by state breakdown
+- Refund tracking with net tax calculations
+- CSV export (summary + detailed orders)
+- Monthly summary emails delivered automatically
+
+**Developer Friendly**
+- Full HPOS (High-Performance Order Storage) support
+- Debug logging for troubleshooting
+- Full i18n support for translations
+- Clean, well-documented code
+
+---
+
 ## [0.9.0] - 2026-03-07
 
 ### Added

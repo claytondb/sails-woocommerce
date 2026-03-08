@@ -4,7 +4,7 @@ Tags: sales tax, woocommerce, tax, tax calculation, ecommerce
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 0.9.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,15 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 
 == Changelog ==
 
+= 1.0.0 =
+* 🎉 **First stable release!** Production-ready for WooCommerce stores
+* Complete tax calculation with ZIP-level accuracy
+* Full tax exemption system (customers + product categories)
+* Advanced reporting dashboard with CSV export
+* Monthly summary emails
+* Refund tracking and net tax calculations
+* HPOS compatible with all WooCommerce versions
+
 = 0.9.0 =
 * NEW: Monthly Summary Emails - automated tax reports delivered to your inbox
 * Beautiful HTML email template showing gross tax, refunds, and net liability
@@ -178,6 +187,9 @@ All of them. Tax is calculated during checkout before payment processing, so it 
 * Settings page for API key
 
 == Upgrade Notice ==
+
+= 1.0.0 =
+🎉 FIRST STABLE RELEASE! Sails Tax for WooCommerce is now production-ready. Complete tax calculation, exemptions, reports, and monthly email summaries. Recommended for all stores.
 
 = 0.9.0 =
 NEW: Monthly Summary Emails! Receive automated tax reports on the 1st of each month. Beautiful HTML emails show your gross tax, refunds, net liability, top states, and calculation accuracy. Configure recipients in settings.

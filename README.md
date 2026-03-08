@@ -1,19 +1,30 @@
-﻿# Sails Tax for WooCommerce
+# Sails Tax for WooCommerce
 
-WordPress/WooCommerce plugin for sales tax calculation powered by Sails.tax API.
+🎉 **v1.0.0 Released!** — WordPress/WooCommerce plugin for sales tax calculation powered by Sails.tax API.
 
 ## Features
 
-- **Checkout Tax Calculation** - Real-time tax estimates at checkout
-- **Confidence Tracking** - Records calculation confidence levels
-- **WooCommerce Integration** - Seamless integration with WC tax system
-- **Admin Settings** - Configure API credentials in WordPress admin
-- **Order Admin Display** - View tax details on order pages
-- **Tax Reports Dashboard** - See total tax collected, confidence breakdowns, and recent orders (v0.4.0)
-- **Debug Logging** - Optional WooCommerce log integration for troubleshooting
-- **Rate Caching** - 5-minute cache with manual clear option
-- **Block Checkout Support** - Full compatibility with WooCommerce Blocks
+### Core Tax Calculation
+- **Real-time Checkout Tax** - ZIP-level accuracy with state fallback
+- **Confidence Tracking** - Know how precise each calculation is
+- **Rate Caching** - 5-minute cache minimizes API calls
+
+### Tax Exemptions
+- **Customer Exemptions** - Wholesale, government, non-profit with certificate management
+- **Product Exemptions** - Groceries, clothing, medicine, digital products
+- **State-specific Rules** - Exemptions that apply only in certain states
+
+### Reports & Analytics
+- **Tax Reports Dashboard** - Total tax, refunds, net liability, state breakdown
+- **CSV Export** - Summary reports and detailed order data
+- **Monthly Emails** - Automated tax summaries on the 1st of each month
+- **Refund Tracking** - Accurate net tax calculations
+
+### Developer Friendly
 - **HPOS Compatible** - Works with High-Performance Order Storage
+- **Block Checkout Support** - Full WooCommerce Blocks compatibility
+- **Debug Logging** - Optional WooCommerce log integration
+- **i18n Ready** - Full internationalization support
 
 ## Requirements
 
@@ -34,39 +45,32 @@ WordPress/WooCommerce plugin for sales tax calculation powered by Sails.tax API.
 ```
 sails-tax-woocommerce.php    # Main plugin file
 includes/
-  class-sails-tax-settings.php     # Admin settings + cache management
-  class-sails-tax-api.php          # Sails.tax API client with logging
-  class-sails-tax-checkout.php     # Checkout integration
-  class-sails-tax-order-display.php # Order admin meta box
-  class-sails-tax-reports.php      # Tax reports dashboard
+  class-sails-tax-settings.php         # Admin settings + cache management
+  class-sails-tax-api.php              # Sails.tax API client with logging
+  class-sails-tax-checkout.php         # Checkout integration
+  class-sails-tax-order-display.php    # Order admin meta box
+  class-sails-tax-reports.php          # Tax reports dashboard
+  class-sails-tax-exemptions.php       # Customer tax exemptions
+  class-sails-tax-product-exemptions.php # Product category exemptions
+  class-sails-tax-refunds.php          # Refund tracking
+  class-sails-tax-email-reports.php    # Monthly summary emails
 ```
 
 ## Version
 
-Current: 0.4.0
+Current: **1.0.0** 🎉
 
 ## Changelog
 
-### 0.4.0 (2026-03-06)
-- Added: Tax Reports dashboard (WooCommerce > Tax Reports)
-- Added: Date range filtering for reports
-- Added: Confidence level breakdown with totals
-- Added: Full HPOS support in reports
+See [CHANGELOG.md](CHANGELOG.md) for full history.
 
-### 0.3.0 (2026-02-20)
-- Added: Order admin meta box showing tax calculation details
-- Added: Debug logging option (integrates with WooCommerce logs)
-- Added: Cache management with manual clear button
-- Added: User-Agent header for better API tracking
-- Improved: API response timing logged when debug enabled
-
-### 0.2.1
-- Added: Test Connection button in settings
-
-### 0.2.0
-- Added: 5-minute rate caching
-- Added: Order metadata storage
-- Added: Block Checkout support
+### 1.0.0 (2026-03-08)
+- 🎉 First stable release! Production-ready for WooCommerce stores
+- Complete tax calculation with ZIP-level accuracy
+- Full tax exemption system (customers + product categories)
+- Advanced reporting dashboard with CSV export
+- Monthly summary emails
+- Refund tracking and net tax calculations
 
 ## Related
 

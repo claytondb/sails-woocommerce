@@ -2,6 +2,22 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [1.0.1] - 2026-03-08
+
+### Added
+- **Rate Limit Handling** - Robust retry logic for API reliability:
+  - Exponential backoff with jitter for rate-limited requests (HTTP 429)
+  - Automatic retry for server errors (5xx) up to 3 attempts
+  - Respects `Retry-After` header when provided by API
+  - Transient-based rate limit tracking prevents thundering herd
+  - Helper methods: `Sails_Tax_API::is_rate_limited()`, `Sails_Tax_API::clear_rate_limit()`
+  
+### Improved
+- API resilience for high-traffic stores
+- Debug logging includes retry attempt count
+
+---
+
 ## [1.0.0] - 2026-03-08
 
 ### 🎉 First Stable Release!

@@ -76,7 +76,7 @@ First stable release shipped March 8, 2026. Production-ready with complete featu
 ### Performance
 - [ ] Batch API calls for cart with multiple destinations
 - [ ] Background cache warming
-- [ ] Rate limit handling with exponential backoff
+- [x] Rate limit handling with exponential backoff ✅ DONE (2026-03-08)
 
 ### Compliance
 - [ ] Automated tax filing integration
@@ -93,7 +93,7 @@ First stable release shipped March 8, 2026. Production-ready with complete featu
 
 ## 📊 Stats
 
-- **Version:** 1.0.0 🎉
+- **Version:** 1.0.1
 - **WordPress.org:** Pending review
 - **i18n:** Ready for translations
 - **Status:** Production-ready

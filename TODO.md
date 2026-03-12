@@ -1,6 +1,6 @@
 # Sails Tax for WooCommerce - Task List
 
-Last updated: 2026-03-08 (3:00 AM)
+Last updated: 2026-03-12 (3:00 AM)
 
 ## 🎉 v1.0.0 Released!
 
@@ -68,10 +68,12 @@ First stable release shipped March 8, 2026. Production-ready with complete featu
 - [x] Tax by state breakdown
 - [x] Monthly summary emails (v0.9.0)
 
-### Multi-Nexus Support
-- [ ] Multiple business locations
+### Multi-Nexus Support ✅ PHASE 1 DONE (2026-03-12)
+- [x] Nexus state configuration (select which states have nexus)
+- [x] Nexus-only checkout mode (skip tax for non-nexus states)
+- [x] Nexus management admin page with visual state picker
+- [ ] Multiple business locations (origin-based)
 - [ ] Origin-based vs destination-based switching
-- [ ] Nexus tracking dashboard
 
 ### Performance
 - [ ] Batch API calls for cart with multiple destinations
@@ -93,7 +95,7 @@ First stable release shipped March 8, 2026. Production-ready with complete featu
 
 ## 📊 Stats
 
-- **Version:** 1.0.2
+- **Version:** 1.1.0
 - **WordPress.org:** Pending review
 - **i18n:** Ready for translations
 - **Status:** Production-ready

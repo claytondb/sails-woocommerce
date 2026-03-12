@@ -2,6 +2,26 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [1.1.0] - 2026-03-12
+
+### Added
+- **Tax Nexus Management** — New dedicated admin page (WooCommerce > Tax Nexus) for managing economic nexus:
+  - Two collection modes: "All States" (default) and "Nexus States Only"
+  - Visual state grid with checkboxes for all 50 US states + DC
+  - "Common Nexus States" quick-select button (CA, TX, NY, FL, WA + 10 more)
+  - "Clear All" button for starting fresh
+  - Selected state count shown live as you pick states
+  - Summary badges showing active nexus states after saving
+  - Informational banner explaining what nexus means
+- **Nexus-aware checkout** — When Nexus-Only mode is enabled, tax is automatically skipped ($0.00) for states where the merchant has no nexus
+- **Settings page nexus indicator** — The main settings page now shows current nexus status with a quick link to the Nexus Management page
+- New `Sails_Tax_Nexus` class with `is_nexus_state()` and `get_nexus_states()` static helpers for extensibility
+
+### Why this matters
+Economic nexus thresholds (typically $100K sales or 200 transactions in a state) mean many small merchants only have nexus in a handful of states. This feature prevents over-collecting tax in states where you have no legal obligation — reducing compliance risk and potential refund headaches.
+
+---
+
 ## [1.0.2] - 2026-03-12
 
 ### Added

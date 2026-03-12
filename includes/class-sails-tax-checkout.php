@@ -40,6 +40,21 @@ class Sails_Tax_Checkout {
       return; // wait until address is present
     }
 
+    // Check nexus — skip tax calculation if merchant has no nexus in this state
+    if (class_exists('Sails_Tax_Nexus') && !Sails_Tax_Nexus::is_nexus_state($toState)) {
+      // No nexus in this state; apply $0 tax so the line item still shows clearly
+      $cart->add_fee(__('Sales Tax', 'sails-tax'), 0, false);
+      $this->store_last_notice([
+        'confidence' => 'no_nexus',
+        'message'    => __('No tax nexus in this state', 'sails-tax'),
+        'taxAmount'  => 0,
+        'rate'       => 0,
+        'no_nexus'   => true,
+        'state'      => $toState,
+      ]);
+      return;
+    }
+
     // Check if customer is tax exempt
     $user_id = get_current_user_id();
     if ($user_id && class_exists('Sails_Tax_Exemptions') && Sails_Tax_Exemptions::is_customer_exempt($user_id, $toState)) {

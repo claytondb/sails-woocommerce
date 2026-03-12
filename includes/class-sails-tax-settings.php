@@ -90,6 +90,34 @@ class Sails_Tax_Settings {
 
     $this->add_field_yesno('exemptions_enabled', __('Enable Tax Exemptions', 'sails-tax'), __('Allow marking customers as tax exempt with exemption certificates.', 'sails-tax'));
     $this->add_field_yesno('debug_logging', __('Enable Debug Logging', 'sails-tax'), __('Log API calls to WooCommerce logs for troubleshooting.', 'sails-tax'));
+
+    // Nexus info field (links to dedicated page)
+    add_settings_field(
+      'nexus_info',
+      __('Tax Nexus States', 'sails-tax'),
+      function () {
+        $nexus_mode = Sails_Tax_Nexus::is_nexus_mode_enabled() ? 'nexus_only' : 'all';
+        $nexus_states = Sails_Tax_Nexus::get_nexus_states();
+        $nexus_url = admin_url('admin.php?page=sails-tax-nexus');
+
+        if ($nexus_mode === 'nexus_only') {
+          if (empty($nexus_states)) {
+            echo '<span style="color: #dc3232;">' . esc_html__('Nexus-Only mode active but no states configured — no tax will be collected!', 'sails-tax') . '</span>';
+          } else {
+            echo '<span style="color: #46b450;">✓ ' . sprintf(
+              /* translators: number of nexus states */
+              esc_html__('Collecting tax in %d configured states', 'sails-tax'),
+              count($nexus_states)
+            ) . '</span>';
+          }
+        } else {
+          echo '<span style="color: #666;">' . esc_html__('Collecting tax in all US states', 'sails-tax') . '</span>';
+        }
+        echo ' &nbsp; <a href="' . esc_url($nexus_url) . '" class="button button-small">' . esc_html__('Manage Nexus States →', 'sails-tax') . '</a>';
+      },
+      'sails-tax',
+      'sails_tax_main'
+    );
   }
 
   public function sanitize($input) {
@@ -100,6 +128,10 @@ class Sails_Tax_Settings {
     $out['customer_disclaimer'] = (isset($input['customer_disclaimer']) && $input['customer_disclaimer'] === 'yes') ? 'yes' : 'no';
     $out['exemptions_enabled'] = (isset($input['exemptions_enabled']) && $input['exemptions_enabled'] === 'yes') ? 'yes' : 'no';
     $out['debug_logging'] = (isset($input['debug_logging']) && $input['debug_logging'] === 'yes') ? 'yes' : 'no';
+    // Preserve nexus settings (managed via separate form on the nexus page)
+    $existing = self::get();
+    $out['nexus_mode']   = $existing['nexus_mode']   ?? 'all';
+    $out['nexus_states'] = $existing['nexus_states'] ?? '';
     return $out;
   }
 

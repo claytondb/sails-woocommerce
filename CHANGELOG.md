@@ -2,6 +2,16 @@
 
 All notable changes to Sails Tax for WooCommerce.
 
+## [1.0.2] - 2026-03-12
+
+### Added
+- **Quick Date Presets** for Tax Reports page:
+  - One-click buttons: This Month, Last Month, This Quarter, Last Quarter, Year to Date, Last Year
+  - JavaScript calculates correct date ranges on the fly and submits the filter form
+  - Useful for quarterly estimated taxes, year-end filing, and month-close reviews
+
+---
+
 ## [1.0.1] - 2026-03-08
 
 ### Added

@@ -61,15 +61,34 @@ class Sails_Tax_Reports {
       <h1><?php esc_html_e('Sails Tax Reports', 'sails-tax'); ?></h1>
       
       <!-- Date Range Filter & Export -->
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin: 20px 0;">
-        <form method="get" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-          <input type="hidden" name="page" value="sails-tax-reports">
-          <label for="start_date"><?php esc_html_e('From:', 'sails-tax'); ?></label>
-          <input type="date" id="start_date" name="start_date" value="<?php echo esc_attr($start_date); ?>">
-          <label for="end_date"><?php esc_html_e('To:', 'sails-tax'); ?></label>
-          <input type="date" id="end_date" name="end_date" value="<?php echo esc_attr($end_date); ?>">
-          <button type="submit" class="button"><?php esc_html_e('Filter', 'sails-tax'); ?></button>
-        </form>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin: 20px 0;">
+        <div>
+          <form method="get" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;" id="sails-date-form">
+            <input type="hidden" name="page" value="sails-tax-reports">
+            <label for="start_date"><?php esc_html_e('From:', 'sails-tax'); ?></label>
+            <input type="date" id="start_date" name="start_date" value="<?php echo esc_attr($start_date); ?>">
+            <label for="end_date"><?php esc_html_e('To:', 'sails-tax'); ?></label>
+            <input type="date" id="end_date" name="end_date" value="<?php echo esc_attr($end_date); ?>">
+            <button type="submit" class="button"><?php esc_html_e('Filter', 'sails-tax'); ?></button>
+          </form>
+          <!-- Quick date presets -->
+          <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+            <span style="font-size: 12px; color: #666; line-height: 26px;"><?php esc_html_e('Quick:', 'sails-tax'); ?></span>
+            <?php
+            $presets = [
+              'this-month'  => __('This Month', 'sails-tax'),
+              'last-month'  => __('Last Month', 'sails-tax'),
+              'this-quarter'=> __('This Quarter', 'sails-tax'),
+              'last-quarter'=> __('Last Quarter', 'sails-tax'),
+              'ytd'         => __('Year to Date', 'sails-tax'),
+              'last-year'   => __('Last Year', 'sails-tax'),
+            ];
+            foreach ($presets as $preset_key => $preset_label) {
+              echo '<button type="button" class="button button-small sails-preset-btn" data-preset="' . esc_attr($preset_key) . '" style="font-size: 12px; height: 26px; line-height: 24px; padding: 0 8px;">' . esc_html($preset_label) . '</button>';
+            }
+            ?>
+          </div>
+        </div>
         
         <!-- Export Dropdown -->
         <div style="position: relative; display: inline-block;">
@@ -103,6 +122,52 @@ class Sails_Tax_Reports {
             document.getElementById('sails-export-menu').classList.remove('visible');
           }
         });
+
+        // Quick date preset logic
+        (function () {
+          function pad(n) { return String(n).padStart(2, '0'); }
+          function fmt(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+
+          document.querySelectorAll('.sails-preset-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var preset = this.dataset.preset;
+              var now    = new Date();
+              var y      = now.getFullYear();
+              var m      = now.getMonth(); // 0-indexed
+              var s, e;
+
+              if (preset === 'this-month') {
+                s = new Date(y, m, 1);
+                e = new Date(y, m + 1, 0);
+              } else if (preset === 'last-month') {
+                s = new Date(y, m - 1, 1);
+                e = new Date(y, m, 0);
+              } else if (preset === 'this-quarter') {
+                var q = Math.floor(m / 3);
+                s = new Date(y, q * 3, 1);
+                e = new Date(y, q * 3 + 3, 0);
+              } else if (preset === 'last-quarter') {
+                var lq = Math.floor(m / 3) - 1;
+                var lqy = y;
+                if (lq < 0) { lq = 3; lqy = y - 1; }
+                s = new Date(lqy, lq * 3, 1);
+                e = new Date(lqy, lq * 3 + 3, 0);
+              } else if (preset === 'ytd') {
+                s = new Date(y, 0, 1);
+                e = now;
+              } else if (preset === 'last-year') {
+                s = new Date(y - 1, 0, 1);
+                e = new Date(y - 1, 11, 31);
+              }
+
+              if (s && e) {
+                document.getElementById('start_date').value = fmt(s);
+                document.getElementById('end_date').value   = fmt(e);
+                document.getElementById('sails-date-form').submit();
+              }
+            });
+          });
+        }());
       </script>
 
       <!-- Summary Cards -->

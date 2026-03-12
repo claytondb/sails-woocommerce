@@ -93,7 +93,7 @@ First stable release shipped March 8, 2026. Production-ready with complete featu
 
 ## 📊 Stats
 
-- **Version:** 1.0.1
+- **Version:** 1.0.2
 - **WordPress.org:** Pending review
 - **i18n:** Ready for translations
 - **Status:** Production-ready
